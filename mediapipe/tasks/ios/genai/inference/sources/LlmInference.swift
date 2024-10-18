@@ -72,7 +72,7 @@ import MediaPipeTasksGenAIC
             number_of_supported_lora_ranks: supportedLoraRanks.count,
             supported_lora_ranks: supportedLoraRanks.baseAddress,
             max_top_k: options.maxTopk,
-            llm_activation_data_type: options.activationDataType.activationDataTypeC,
+            llm_activation_data_type: kLlmActivationDataTypeDefault,
             num_draft_tokens: 0,
             wait_for_weight_uploads: options.waitForWeightUploads)
           return try LlmTaskRunner(modelSettings: modelSetting)
@@ -81,7 +81,7 @@ import MediaPipeTasksGenAIC
     }
     let timeAfterInit = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW)
     metrics = Metrics(
-      initializationTimeInMillis: (TimeInterval(timeAfterInit - timeBeforeInit) * 1000)
+      initializationTimeInSeconds: TimeInterval(timeAfterInit - timeBeforeInit)
         / TimeInterval(NSEC_PER_SEC))
 
     super.init()
@@ -233,16 +233,13 @@ extension LlmInference {
     /// The supported lora ranks for the base model. Used by GPU only.
     @objc public var supportedLoraRanks: [Int] = []
 
-    /// The activation data type for the model.
-    @objc public var activationDataType: ActivationDataType = .default
-
     /// If true, waits for weights to finish uploading when initializing. Otherwise initialization
     /// may finish before weights have finished uploading which might push some of the weight upload
     /// time into input processing.
     @objc public var waitForWeightUploads: Bool = false
 
     /// Creates a new instance of `Options` with the given `modelPath` and default values of
-    /// `maxTokens`, `maxTopk`, `supportedLoraRanks` and `activationDataType`.
+    /// `maxTokens`, `maxTopk`, `supportedLoraRanks`.
     /// This function is only intended to be used from Objective C.
     ///
     /// - Parameters:
@@ -252,34 +249,6 @@ extension LlmInference {
       super.init()
     }
   }
-
-  /// The activation data type for the model.
-  @objc(MPPLLMInferenceActivationDataType)
-  public enum ActivationDataType: Int {
-    case `default` = 0
-    case float32 = 1
-    case float16 = 2
-    case int16 = 3
-    case int8 = 4
-  }
-}
-
-extension LlmInference.ActivationDataType {
-  /// Mapping to the engine C API.
-  fileprivate var activationDataTypeC: LlmActivationDataType {
-    switch self {
-    case .default:
-      return kLlmActivationDataTypeDefault
-    case .float32:
-      return kLlmActivationDataTypeFloat32
-    case .float16:
-      return kLlmActivationDataTypeFloat16
-    case .int16:
-      return kLlmActivationDataTypeInt16
-    case .int8:
-      return kLlmActivationDataTypeInt8
-    }
-  }
 }
 
 extension LlmInference {
@@ -287,13 +256,13 @@ extension LlmInference {
   ///
   /// Note: Inherits from `NSObject` for Objective C interoperability.
   @objc(MPPLLMInferenceMetrics) public final class Metrics: NSObject {
-    /// The time it took to initialize the LLM inference engine, in milliseconds.
+    /// The time it took to initialize the LLM inference engine, in seconds.
     /// If you want to include the time it took to load the model weights, set
     /// `LlmInference.Options.waitForWeightUploads` to true.
-    @objc public private(set) var initializationTimeInMillis: TimeInterval
+    @objc public let initializationTimeInSeconds: TimeInterval
 
-    @objc public init(initializationTimeInMillis: TimeInterval) {
-      self.initializationTimeInMillis = initializationTimeInMillis
+    @objc public init(initializationTimeInSeconds: TimeInterval) {
+      self.initializationTimeInSeconds = initializationTimeInSeconds
     }
   }
 }
