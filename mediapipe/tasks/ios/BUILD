@@ -28,8 +28,6 @@ exports_files([
     "MediaPipeTasksVision.podspec.template",
     "MediaPipeTasksText.podspec.template",
     "MediaPipeTasksCommon.podspec.template",
-    "MediaPipeTasksGenAI.podspec.template",
-    "MediaPipeTasksGenAIC.podspec.template",
 ])
 
 TENSORFLOW_LITE_C_DEPS = [
