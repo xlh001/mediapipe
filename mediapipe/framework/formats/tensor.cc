@@ -553,7 +553,7 @@ absl::Status Tensor::Invalidate() {
 #endif  // MEDIAPIPE_OPENGL_ES_VERSION >= MEDIAPIPE_OPENGL_ES_31
 #endif  // MEDIAPIPE_OPENGL_ES_VERSION >= MEDIAPIPE_OPENGL_ES_30
   {
-    absl::MutexLock lock(&view_mutex_);
+    absl::MutexLock lock(view_mutex_);
     MP_RETURN_IF_ERROR(ReleaseAhwbStuff());
 
     // Don't need to wait for the resource to be deleted because if will be
