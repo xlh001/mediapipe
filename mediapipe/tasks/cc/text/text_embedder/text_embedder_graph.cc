@@ -20,12 +20,14 @@ limitations under the License.
 #include "absl/log/absl_check.h"
 #include "absl/status/status.h"
 #include "absl/status/statusor.h"
+#include "absl/strings/match.h"
 #include "absl/strings/string_view.h"
 #include "mediapipe/calculators/tensor/inference_calculator.pb.h"
 #include "mediapipe/framework/api2/builder.h"
 #include "mediapipe/framework/api2/port.h"
 #include "mediapipe/framework/calculator.pb.h"
 #include "mediapipe/framework/calculator_framework.h"
+#include "mediapipe/framework/port/status_macros.h"
 #include "mediapipe/tasks/cc/components/calculators/tensors_to_embeddings_calculator.pb.h"
 #include "mediapipe/tasks/cc/components/containers/proto/embeddings.pb.h"
 #include "mediapipe/tasks/cc/components/processors/embedding_postprocessing_graph.h"
@@ -103,7 +105,7 @@ class TextEmbedderGraph : public core::ModelTaskGraph {
     ABSL_CHECK(sc != nullptr);
 
     const ModelResources* model_resources = nullptr;
-    MP_RETURN_IF_ERROR(MaybeHandleGeckoBundle(sc, &model_resources));
+    MP_RETURN_IF_ERROR(MaybeHandleModelBundle(sc, &model_resources));
 
     if (model_resources == nullptr) {
       MP_ASSIGN_OR_RETURN(
@@ -122,11 +124,11 @@ class TextEmbedderGraph : public core::ModelTaskGraph {
   }
 
  private:
-  // Handles the Gecko bundle by extracting the gecko.tflite and
+  // Handles a model bundle by extracting the .tflite and
   // sentencepiece.model files from the bundle and creating ModelResources for
-  // the gecko.tflite file. If the model asset is not a Gecko bundle, does
+  // the .tflite file. If the model asset is not a model bundle, does
   // nothing and does not update the model_resources pointer.
-  absl::Status MaybeHandleGeckoBundle(SubgraphContext* sc,
+  absl::Status MaybeHandleModelBundle(SubgraphContext* sc,
                                       const ModelResources** model_resources) {
     *model_resources = nullptr;
     if (!sc->Options<proto::TextEmbedderGraphOptions>()
@@ -137,7 +139,8 @@ class TextEmbedderGraph : public core::ModelTaskGraph {
     const auto& model_asset = sc->Options<proto::TextEmbedderGraphOptions>()
                                   .base_options()
                                   .model_asset();
-    bool is_gecko_bundle = false;
+    bool is_model_bundle = false;
+    std::string tflite_model_name;
     auto handler_or =
         tasks::core::ExternalFileHandler::CreateFromExternalFile(&model_asset);
     if (handler_or.ok()) {
@@ -146,30 +149,39 @@ class TextEmbedderGraph : public core::ModelTaskGraph {
               handler_or.value()->GetFileContent().data(),
               handler_or.value()->GetFileContent().size(), &files)
               .ok()) {
-        if (files.find(kGeckoTFLiteName) != files.end() &&
+        for (const auto& [name, content] : files) {
+          if (absl::EndsWith(name, ".tflite")) {
+            tflite_model_name = name;
+            break;
+          }
+        }
+        if (!tflite_model_name.empty() &&
             files.find(kSentencePieceModelName) != files.end()) {
-          is_gecko_bundle = true;
+          is_model_bundle = true;
         }
       }
     }
 
-    if (is_gecko_bundle) {
+    if (is_model_bundle) {
       MP_ASSIGN_OR_RETURN(
           const auto* bundle_resources,
           CreateModelAssetBundleResources<proto::TextEmbedderGraphOptions>(sc));
-      // Extract gecko.tflite
-      MP_ASSIGN_OR_RETURN(auto gecko_model_file,
-                          bundle_resources->GetFile(kGeckoTFLiteName));
-      // Create ModelResources for gecko.tflite
-      auto gecko_external_file =
+      // Extract tflite model
+      MP_ASSIGN_OR_RETURN(auto tflite_model_file,
+                          bundle_resources->GetFile(tflite_model_name));
+      // Create ModelResources for the tflite model
+      auto tflite_external_file =
           std::make_unique<tasks::core::proto::ExternalFile>();
-      SetExternalFile(gecko_model_file, gecko_external_file.get(),
+      SetExternalFile(tflite_model_file, tflite_external_file.get(),
                       /*is_copy=*/
                       !sc->Service(kModelResourcesCacheService).IsAvailable());
+
+      std::string model_id = tflite_model_name == kGeckoTFLiteName
+                                 ? "gecko_tflite"
+                                 : "gemma_tflite";
       MP_ASSIGN_OR_RETURN(
           *model_resources,
-          CreateModelResources(sc, std::move(gecko_external_file),
-                               "gecko_tflite"));
+          CreateModelResources(sc, std::move(tflite_external_file), model_id));
 
       // Extract sentencepiece.model
       auto sp_model_file_or =

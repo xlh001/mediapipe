@@ -60,6 +60,7 @@ cc_library(
         "//mediapipe/framework:calculator_framework",
         "//mediapipe/framework/api2:builder",
         "//mediapipe/framework/api2:port",
+        "//mediapipe/framework/port:status",
         "//mediapipe/tasks/cc/components/calculators:tensors_to_embeddings_calculator_cc_proto",
         "//mediapipe/tasks/cc/components/containers/proto:embeddings_cc_proto",
         "//mediapipe/tasks/cc/components/processors:embedding_postprocessing_graph",
