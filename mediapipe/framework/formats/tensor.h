@@ -28,6 +28,7 @@
 #include <utility>
 #include <vector>
 
+#include "absl/base/thread_annotations.h"
 #include "absl/functional/any_invocable.h"
 #include "absl/status/status.h"
 #include "absl/strings/string_view.h"
@@ -506,9 +507,44 @@ class Tensor {
 
  private:
   friend class MtlBufferView;
+
+  // RAII object to own CPU buffer and release callback. It is intended to be
+  // used internally to access tensor CPU data when lock is already in place.
+  template <typename T>
+  class CpuBufferHandle {
+   public:
+    explicit CpuBufferHandle(T* buffer,
+                             absl::AnyInvocable<void()> release_callback)
+        : buffer_(buffer), release_callback_(std::move(release_callback)) {}
+    CpuBufferHandle(const CpuBufferHandle&) = delete;
+    CpuBufferHandle& operator=(const CpuBufferHandle&) = delete;
+    CpuBufferHandle(CpuBufferHandle&&) = delete;
+    CpuBufferHandle& operator=(CpuBufferHandle&&) = delete;
+
+    ~CpuBufferHandle() {
+      if (release_callback_) release_callback_();
+    }
+    template <typename P>
+    auto buffer() const {
+      // const and non-const return type selection.
+      return static_cast<typename std::tuple_element<
+          std::is_const<T>::value, std::tuple<P*, const P*>>::type>(buffer_);
+    }
+    CpuView<T> ToCpuView(std::unique_ptr<absl::MutexLock> lock) && {
+      return CpuView<T>(buffer_, std::move(lock), std::move(release_callback_));
+    }
+
+   private:
+    T* buffer_;
+    absl::AnyInvocable<void()> release_callback_;
+  };
+
   void Move(Tensor*);
   absl::Status Invalidate();
   absl::Status ReadBackGpuToCpu() const;
+  // Returns a CPU buffer handle of the tensor. view_mutex_ must be held during
+  // the function call and the lifetime of the returned handle.
+  CpuBufferHandle<const void> AcquireCpuBufferHandle() const;
 
   ElementType element_type_;
   Shape shape_;
