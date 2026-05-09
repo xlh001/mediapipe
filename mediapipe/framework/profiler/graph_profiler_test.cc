@@ -120,27 +120,27 @@ class GraphProfilerTestPeer : public testing::Test {
   void SetUp() override { packet_type_.SetAny(); }
 
   bool GetIsInitialized() {
-    absl::ReaderMutexLock lock(&profiler_.profiler_mutex_);
+    absl::ReaderMutexLock lock(profiler_.profiler_mutex_);
     return profiler_.is_initialized_;
   }
 
   bool GetIsProfiling() {
-    absl::ReaderMutexLock lock(&profiler_.profiler_mutex_);
+    absl::ReaderMutexLock lock(profiler_.profiler_mutex_);
     return profiler_.is_profiling_;
   }
 
   bool GetIsProfilingStreamLatency() {
-    absl::ReaderMutexLock lock(&profiler_.profiler_mutex_);
+    absl::ReaderMutexLock lock(profiler_.profiler_mutex_);
     return profiler_.profiler_config_.enable_stream_latency();
   }
 
   bool GetTraceLogDisabled() {
-    absl::ReaderMutexLock lock(&profiler_.profiler_mutex_);
+    absl::ReaderMutexLock lock(profiler_.profiler_mutex_);
     return profiler_.profiler_config_.trace_log_disabled();
   }
 
   bool GetUsePacketTimeStampForAddedPacket() {
-    absl::ReaderMutexLock lock(&profiler_.profiler_mutex_);
+    absl::ReaderMutexLock lock(profiler_.profiler_mutex_);
     return profiler_.profiler_config_.use_packet_timestamp_for_added_packet();
   }
 
@@ -1223,7 +1223,7 @@ TEST(GraphProfilerTest, ParallelReads) {
   CalculatorGraph graph;
   MP_ASSERT_OK(graph.Initialize(config));
   MP_ASSERT_OK(graph.ObserveOutputStream("out_1", [&](const Packet& packet) {
-    absl::MutexLock lock(&out_1_mutex);
+    absl::MutexLock lock(out_1_mutex);
     out_1_packets.push_back(packet);
     return absl::OkStatus();
   }));
@@ -1235,7 +1235,7 @@ TEST(GraphProfilerTest, ParallelReads) {
     std::vector<CalculatorProfile> profiles;
     MP_ASSERT_OK(graph.profiler()->GetCalculatorProfiles(&profiles));
     EXPECT_EQ(2, profiles.size());
-    absl::MutexLock lock(&out_1_mutex);
+    absl::MutexLock lock(out_1_mutex);
     if (out_1_packets.size() >= 1001) {
       break;
     }
