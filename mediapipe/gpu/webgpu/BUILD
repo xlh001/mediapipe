@@ -246,7 +246,6 @@ cc_library(
         ":webgpu_headers",
         "//mediapipe/framework/port:status",
         "//mediapipe/web:jspi_check",
-        "@com_google_absl//absl/base:no_destructor",
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/status:statusor",
         "@com_google_absl//absl/time",
