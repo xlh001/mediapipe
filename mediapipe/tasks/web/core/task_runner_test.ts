@@ -80,8 +80,8 @@ class TaskRunnerFake extends TaskRunner {
     this.errors.push(message);
   }
 
-  override finishProcessing(): void {
-    super.finishProcessing();
+  override finishProcessing(timestamp: number): void {
+    super.finishProcessing(timestamp);
   }
 
   override refreshGraph(): void {}
@@ -261,7 +261,7 @@ describe('TaskRunner', () => {
     taskRunner.enqueueError('Test error');
 
     expect(() => {
-      taskRunner.finishProcessing();
+      taskRunner.finishProcessing(0);
     }).toThrowError('Test error');
   });
 

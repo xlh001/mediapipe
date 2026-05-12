@@ -167,15 +167,13 @@ export class TextEmbedder extends TaskRunner {
    * @return The embedding results of the text
    */
   embed(text: string, formatOptions?: TextFormatOptions): TextEmbedderResult {
+    const timestamp = this.getSyntheticTimestamp();
+    this.startProcessing(timestamp);
     const inputText = formatOptions
       ? this.formatText(text, formatOptions)
       : text;
-    this.graphRunner.addStringToStream(
-      inputText,
-      INPUT_STREAM,
-      this.getSynctheticTimestamp(),
-    );
-    this.finishProcessing();
+    this.graphRunner.addStringToStream(inputText, INPUT_STREAM, timestamp);
+    this.finishProcessing(timestamp);
     return this.embeddingResult;
   }
 

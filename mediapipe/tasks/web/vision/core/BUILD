@@ -37,7 +37,6 @@ ts_library(
         "drawing_utils_confidence_mask.ts",
     ],
     deps = [
-        ":image",
         ":image_shader_context",
         ":mask",
         ":types",
@@ -53,7 +52,6 @@ ts_library(
     srcs = ["drawing_utils.test.ts"],
     deps = [
         ":drawing_utils",
-        ":image",
         ":image_shader_context",
         ":mask",
     ],
@@ -94,7 +92,6 @@ ts_library(
     name = "mask",
     srcs = ["mask.ts"],
     deps = [
-        ":image",
         ":image_shader_context",
         "//mediapipe/web/graph_runner:platform_utils",
     ],
@@ -105,7 +102,6 @@ ts_library(
     testonly = True,
     srcs = ["mask.test.ts"],
     deps = [
-        ":image",
         ":image_shader_context",
         ":mask",
     ],

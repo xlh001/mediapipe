@@ -315,7 +315,7 @@ export class InteractiveSegmenter extends VisionTaskRunner {
         : callback;
 
     this.reset();
-    this.processRenderData(roi, this.getSynctheticTimestamp());
+    this.processRenderData(roi, this.getSyntheticTimestamp());
     this.processImageData(image, imageProcessingOptions);
     return this.processResults();
   }

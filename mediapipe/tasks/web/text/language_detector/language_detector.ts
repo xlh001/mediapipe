@@ -160,12 +160,10 @@ export class LanguageDetector extends TaskRunner {
    */
   detect(text: string): LanguageDetectorResult {
     this.result = {languages: []};
-    this.graphRunner.addStringToStream(
-      text,
-      INPUT_STREAM,
-      this.getSynctheticTimestamp(),
-    );
-    this.finishProcessing();
+    const timestamp = this.getSyntheticTimestamp();
+    this.startProcessing(timestamp);
+    this.graphRunner.addStringToStream(text, INPUT_STREAM, timestamp);
+    this.finishProcessing(timestamp);
     return this.result;
   }
 

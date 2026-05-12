@@ -162,12 +162,10 @@ export class TextClassifier extends TaskRunner {
    */
   classify(text: string): TextClassifierResult {
     this.classificationResult = {classifications: []};
-    this.graphRunner.addStringToStream(
-      text,
-      INPUT_STREAM,
-      this.getSynctheticTimestamp(),
-    );
-    this.finishProcessing();
+    const timestamp = this.getSyntheticTimestamp();
+    this.startProcessing(timestamp);
+    this.graphRunner.addStringToStream(text, INPUT_STREAM, timestamp);
+    this.finishProcessing(timestamp);
     return this.classificationResult;
   }
 

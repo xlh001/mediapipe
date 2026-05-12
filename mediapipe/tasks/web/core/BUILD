@@ -14,10 +14,39 @@ ts_declaration(
 )
 
 ts_library(
+    name = "task_logger",
+    srcs = ["task_logger.ts"],
+)
+
+genrule(
+    name = "task_logger_factory_gen",
+    outs = ["task_logger_factory.ts"],
+    cmd = select({
+        "//conditions:default": """
+            echo "import {DummyTaskLogger} from './task_logger';" > $@
+            echo "export function createTasksLogger(" >> $@
+            echo "  taskName: string," >> $@
+            echo "  runningMode: string," >> $@
+            echo "): DummyTaskLogger { return new DummyTaskLogger(); }" >> $@
+        """,
+    }),
+)
+
+ts_library(
+    name = "task_logger_factory",
+    srcs = ["task_logger_factory.ts"],
+    deps = [
+        ":task_logger",
+    ],
+)
+
+ts_library(
     name = "task_runner",
     srcs = ["task_runner.ts"],
     deps = [
         ":core",
+        ":task_logger",
+        ":task_logger_factory",
         "//mediapipe/calculators/tensor:inference_calculator_jspb_proto",
         "//mediapipe/framework:calculator_jspb_proto",
         "//mediapipe/tasks/cc/core/proto:acceleration_jspb_proto",
