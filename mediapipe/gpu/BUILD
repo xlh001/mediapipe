@@ -654,7 +654,6 @@ cc_library(
     hdrs = ["pixel_buffer_pool_util.h"],
     copts = [
         "-x objective-c++",
-        "-Wno-shorten-64-to-32",
         "-fobjc-arc",  # enable reference-counting
     ],
     visibility = ["//visibility:public"],
@@ -672,7 +671,6 @@ cc_library(
     hdrs = ["metal_shared_resources.h"],
     copts = [
         "-x objective-c++",
-        "-Wno-shorten-64-to-32",
         "-fobjc-arc",  # enable reference-counting
     ],
     features = ["-layering_check"],
@@ -693,7 +691,6 @@ cc_library(
     hdrs = ["MPPMetalUtil.h"],
     copts = [
         "-x objective-c++",
-        "-Wno-shorten-64-to-32",
         "-fobjc-arc",  # enable reference-counting
     ],
     visibility = ["//visibility:public"],
@@ -711,12 +708,6 @@ cc_library(
     name = "gl_app_texture_support",
     srcs = ["gl_app_texture_support.cc"],
     hdrs = ["gl_app_texture_support.h"],
-    copts = select({
-        "//conditions:default": [],
-        "//mediapipe:macos": [
-            "-Wno-shorten-64-to-32",
-        ],
-    }),
     deps = [
         ":gl_base",
         ":gl_context",
@@ -1090,7 +1081,6 @@ cc_library(
     srcs = ["MPPMetalHelper.cc"],
     hdrs = ["MPPMetalHelper.h"],
     copts = [
-        "-Wno-shorten-64-to-32",
         "-x objective-c++",
         "-fobjc-arc",
     ],
@@ -1600,9 +1590,6 @@ objc_library(
     srcs = [
         "gl_ios_test.mm",
         "metal_shared_resources_test.mm",
-    ],
-    copts = [
-        "-Wno-shorten-64-to-32",
     ],
     data = [
         "//mediapipe/objc:testdata/googlelogo_color_272x92dp.png",
