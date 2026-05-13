@@ -13,7 +13,8 @@
 # limitations under the License.
 
 # Placeholder for internal Python strict binary and library compatibility macro.
-# Placeholder for internal Python library rule.
+load("//devtools/python/bazel:strict.bzl", "py_library_providing_imports_info")
+# Placeholder: load py_test
 
 licenses(["notice"])
 
