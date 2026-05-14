@@ -38,7 +38,7 @@ _CFunction = mediapipe_c_utils.CFunction
 _AsyncResultDispatcher = async_result_dispatcher.AsyncResultDispatcher
 
 
-class RegionOfInterestC(ctypes.Structure):
+class MpRegionOfInterestC(ctypes.Structure):
   """The Region-Of-Interest (ROI) to interact with."""
 
   class Format(enum.IntEnum):
@@ -48,17 +48,17 @@ class RegionOfInterestC(ctypes.Structure):
 
   _fields_ = [
       ('format', ctypes.c_int),
-      ('keypoint', ctypes.POINTER(keypoint_c_module.NormalizedKeypointC)),
-      ('scribble', ctypes.POINTER(keypoint_c_module.NormalizedKeypointC)),
+      ('keypoint', ctypes.POINTER(keypoint_c_module.MpNormalizedKeypointC)),
+      ('scribble', ctypes.POINTER(keypoint_c_module.MpNormalizedKeypointC)),
       ('scribble_count', ctypes.c_uint32),
   ]
 
 
-class InteractiveSegmenterOptionsC(ctypes.Structure):
-  """The MediaPipe Tasks InteractiveSegmenterOptions CTypes struct."""
+class MpInteractiveSegmenterOptionsC(ctypes.Structure):
+  """The MediaPipe Tasks MpInteractiveSegmenterOptions CTypes struct."""
 
   _fields_ = [
-      ('base_options', base_options_c_module.BaseOptionsC),
+      ('base_options', base_options_c_module.MpBaseOptionsC),
       ('output_confidence_masks', ctypes.c_bool),
       ('output_category_mask', ctypes.c_bool),
   ]
@@ -68,7 +68,7 @@ _CTYPES_SIGNATURES = (
     mediapipe_c_utils.CStatusFunction(
         'MpInteractiveSegmenterCreate',
         (
-            ctypes.POINTER(InteractiveSegmenterOptionsC),
+            ctypes.POINTER(MpInteractiveSegmenterOptionsC),
             ctypes.POINTER(ctypes.c_void_p),
         ),
     ),
@@ -77,16 +77,16 @@ _CTYPES_SIGNATURES = (
         (
             ctypes.c_void_p,
             ctypes.c_void_p,  # image
-            ctypes.POINTER(RegionOfInterestC),
+            ctypes.POINTER(MpRegionOfInterestC),
             ctypes.POINTER(
-                image_processing_options_c_module.ImageProcessingOptionsC
+                image_processing_options_c_module.MpImageProcessingOptionsC
             ),
-            ctypes.POINTER(image_segmenter.ImageSegmenterResultC),
+            ctypes.POINTER(image_segmenter.MpImageSegmenterResultC),
         ),
     ),
     mediapipe_c_utils.CFunction(
         'MpInteractiveSegmenterCloseResult',
-        [ctypes.POINTER(image_segmenter.ImageSegmenterResultC)],
+        [ctypes.POINTER(image_segmenter.MpImageSegmenterResultC)],
         None,
     ),
     mediapipe_c_utils.CStatusFunction(
@@ -113,7 +113,7 @@ class InteractiveSegmenterResult:
   @classmethod
   @doc_controls.do_not_generate_docs
   def from_ctypes(
-      cls, c_result: image_segmenter.ImageSegmenterResultC
+      cls, c_result: image_segmenter.MpImageSegmenterResultC
   ) -> 'InteractiveSegmenterResult':
     """Converts a C ImageSegmenterResult to a Python InteractiveSegmenterResult."""
     base_result = image_segmenter.ImageSegmenterResult.from_ctypes(c_result)
@@ -141,9 +141,9 @@ class InteractiveSegmenterOptions:
   output_category_mask: bool = False
 
   @doc_controls.do_not_generate_docs
-  def to_ctypes(self) -> InteractiveSegmenterOptionsC:
-    """Generates an InteractiveSegmenterOptionsC ctypes struct."""
-    return InteractiveSegmenterOptionsC(
+  def to_ctypes(self) -> MpInteractiveSegmenterOptionsC:
+    """Generates an MpInteractiveSegmenterOptionsC ctypes struct."""
+    return MpInteractiveSegmenterOptionsC(
         base_options=self.base_options.to_ctypes(),
         output_confidence_masks=self.output_confidence_masks,
         output_category_mask=self.output_category_mask,
@@ -162,14 +162,14 @@ class RegionOfInterest:
   keypoint: Optional[keypoint_module.NormalizedKeypoint] = None
 
   @doc_controls.do_not_generate_docs
-  def to_ctypes(self) -> RegionOfInterestC:
-    """Converts a Python RegionOfInterest to a C RegionOfInterestC."""
+  def to_ctypes(self) -> MpRegionOfInterestC:
+    """Converts a Python RegionOfInterest to a C MpRegionOfInterestC."""
     if self.keypoint is not None:
       if self.format == RegionOfInterest.Format.UNSPECIFIED:
         raise ValueError('RegionOfInterest format not specified.')
       elif self.format == RegionOfInterest.Format.KEYPOINT:
-        c_roi = RegionOfInterestC(format=self.format.value)
-        c_keypoint = keypoint_c_module.NormalizedKeypointC(
+        c_roi = MpRegionOfInterestC(format=self.format.value)
+        c_keypoint = keypoint_c_module.MpNormalizedKeypointC(
             x=self.keypoint.x, y=self.keypoint.y
         )
         c_roi.keypoint = ctypes.pointer(c_keypoint)
@@ -304,7 +304,7 @@ class InteractiveSegmenter:
     """
     c_image = image._image_ptr  # pylint: disable=protected-access
     c_roi = roi.to_ctypes()
-    c_result = image_segmenter.ImageSegmenterResultC()
+    c_result = image_segmenter.MpImageSegmenterResultC()
     options_c = (
         ctypes.byref(image_processing_options.to_ctypes())
         if image_processing_options

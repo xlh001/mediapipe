@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""C types for BaseOptions."""
+"""C types for MpBaseOptions."""
 
 import ctypes
 
 
-class BaseOptionsC(ctypes.Structure):
-  """C types for BaseOptions.
+class MpBaseOptionsC(ctypes.Structure):
+  """C types for MpBaseOptions.
 
   Attributes:
     model_asset_buffer: `bytes`, the model asset buffer.
@@ -30,6 +30,7 @@ class BaseOptionsC(ctypes.Structure):
     host_version: `bytes`, the Python version as a UTF-8 string.
     ca_bundle_path: `bytes`, the path to the CA bundle file as a UTF-8 string.
   """
+
   _fields_ = [
       ("model_asset_buffer", ctypes.c_char_p),
       ("model_asset_buffer_count", ctypes.c_uint),

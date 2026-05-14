@@ -73,14 +73,14 @@ InteractiveSegmenter* GetCppSegmenter(MpInteractiveSegmenterPtr wrapper) {
 }  // namespace
 
 void CppConvertToRegionOfInterest(
-    const RegionOfInterest* in,
+    const MpRegionOfInterest* in,
     mediapipe::tasks::vision::interactive_segmenter::RegionOfInterest* out) {
   // Convert format
   switch (in->format) {
-    case RegionOfInterest::kKeypoint:
+    case MP_REGION_OF_INTEREST_FORMAT_KEYPOINT:
       out->format = CppRegionOfInterestFormat::kKeyPoint;
       break;
-    case RegionOfInterest::kScribble:
+    case MP_REGION_OF_INTEREST_FORMAT_SCRIBBLE:
       out->format = CppRegionOfInterestFormat::kScribble;
       break;
     default:
@@ -88,12 +88,12 @@ void CppConvertToRegionOfInterest(
   }
 
   // Convert keypoint
-  if (in->format == RegionOfInterest::kKeypoint) {
+  if (in->format == MP_REGION_OF_INTEREST_FORMAT_KEYPOINT) {
     out->keypoint = CppNormalizedKeypoint{in->keypoint->x, in->keypoint->y};
   }
 
   // Convert scribble
-  if (in->format == RegionOfInterest::kScribble) {
+  if (in->format == MP_REGION_OF_INTEREST_FORMAT_SCRIBBLE) {
     out->scribble = std::vector<CppNormalizedKeypoint>();
     for (int i = 0; i < in->scribble_count; ++i) {
       out->scribble->emplace_back(
@@ -103,7 +103,7 @@ void CppConvertToRegionOfInterest(
 }
 
 void CppConvertToInteractiveSegmenterOptions(
-    const InteractiveSegmenterOptions& in,
+    const MpInteractiveSegmenterOptions& in,
     mediapipe::tasks::vision::interactive_segmenter::
         InteractiveSegmenterOptions* out) {
   out->output_confidence_masks = in.output_confidence_masks;
@@ -111,7 +111,7 @@ void CppConvertToInteractiveSegmenterOptions(
 }
 
 absl::Status CppInteractiveSegmenterCreate(
-    const InteractiveSegmenterOptions& options,
+    const MpInteractiveSegmenterOptions& options,
     MpInteractiveSegmenterPtr* segmenter) {
   auto cpp_options =
       std::make_unique<::mediapipe::tasks::vision::interactive_segmenter::
@@ -131,9 +131,9 @@ absl::Status CppInteractiveSegmenterCreate(
 
 absl::Status CppInteractiveSegmenterSegment(
     MpInteractiveSegmenterPtr segmenter, MpImagePtr image,
-    const RegionOfInterest* region_of_interest,
-    const ImageProcessingOptions* image_processing_options,
-    ImageSegmenterResult* result) {
+    const MpRegionOfInterest* region_of_interest,
+    const MpImageProcessingOptions* image_processing_options,
+    MpImageSegmenterResult* result) {
   auto cpp_segmenter = GetCppSegmenter(segmenter);
   std::optional<CppImageProcessingOptions> cpp_image_processing_options;
   if (image_processing_options) {
@@ -152,7 +152,7 @@ absl::Status CppInteractiveSegmenterSegment(
   return absl::OkStatus();
 }
 
-void CppImageSegmenterCloseResult(ImageSegmenterResult* result) {
+void CppImageSegmenterCloseResult(MpImageSegmenterResult* result) {
   CppCloseImageSegmenterResult(result);
 }
 
@@ -171,7 +171,7 @@ absl::Status CppInteractiveSegmenterClose(MpInteractiveSegmenterPtr segmenter) {
 extern "C" {
 
 MP_EXPORT MpStatus MpInteractiveSegmenterCreate(
-    struct InteractiveSegmenterOptions* options,
+    struct MpInteractiveSegmenterOptions* options,
     MpInteractiveSegmenterPtr* segmenter, char** error_msg) {
   absl::Status status = mediapipe::tasks::c::vision::interactive_segmenter::
       CppInteractiveSegmenterCreate(*options, segmenter);
@@ -180,16 +180,17 @@ MP_EXPORT MpStatus MpInteractiveSegmenterCreate(
 
 MP_EXPORT MpStatus MpInteractiveSegmenterSegmentImage(
     MpInteractiveSegmenterPtr segmenter, MpImagePtr image,
-    const RegionOfInterest* roi,
-    const ImageProcessingOptions* image_processing_options,
-    ImageSegmenterResult* result, char** error_msg) {
+    const MpRegionOfInterest* roi,
+    const MpImageProcessingOptions* image_processing_options,
+    MpImageSegmenterResult* result, char** error_msg) {
   absl::Status status = mediapipe::tasks::c::vision::interactive_segmenter::
       CppInteractiveSegmenterSegment(segmenter, image, roi,
                                      image_processing_options, result);
   return mediapipe::tasks::c::core::HandleStatus(status, error_msg);
 }
 
-MP_EXPORT void MpInteractiveSegmenterCloseResult(ImageSegmenterResult* result) {
+MP_EXPORT void MpInteractiveSegmenterCloseResult(
+    MpImageSegmenterResult* result) {
   mediapipe::tasks::c::vision::interactive_segmenter::
       CppImageSegmenterCloseResult(result);
 }

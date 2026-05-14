@@ -43,10 +43,10 @@ extern "C" {
 typedef struct MpInteractiveSegmenterInternal* MpInteractiveSegmenterPtr;
 
 // The options for configuring a mediapipe interactive segmenter task.
-struct InteractiveSegmenterOptions {
+struct MpInteractiveSegmenterOptions {
   // Base options for configuring MediaPipe Tasks, such as specifying the model
   // file with metadata, accelerator options, op resolver, etc.
-  struct BaseOptions base_options;
+  struct MpBaseOptions base_options;
 
   // Whether to output confidence masks.
   bool output_confidence_masks = true;
@@ -55,24 +55,28 @@ struct InteractiveSegmenterOptions {
   bool output_category_mask = false;
 };
 
+// The format used to specify the region-of-interest.
+enum MpRegionOfInterestFormat {
+  MP_REGION_OF_INTEREST_FORMAT_UNSPECIFIED = 0,
+  MP_REGION_OF_INTEREST_FORMAT_KEYPOINT = 1,
+  MP_REGION_OF_INTEREST_FORMAT_SCRIBBLE = 2,
+};
+
 // The Region-Of-Interest (ROI) to interact with.
-struct RegionOfInterest {
+struct MpRegionOfInterest {
   // Specifies the format used to specify the region-of-interest. Note that
-  // using `kUnspecified` is invalid.
-  enum {
-    kUnspecified = 0,  // Format not specified
-    kKeypoint = 1,     // Using keypoint to represent ROI
-    kScribble = 2      // Using scribble to represent ROI
-  } format;
+  // using `MP_REGION_OF_INTEREST_FORMAT_UNSPECIFIED` is invalid.
+  enum MpRegionOfInterestFormat format;
 
   // Represents the ROI in keypoint format, this should have a valid keypoint
-  // with coordinates `x` and `y` if `format` is `kKeyPoint`; `nullptr` if not
-  // present
-  NormalizedKeypoint* keypoint;
+  // with coordinates `x` and `y` if `format` is
+  // `MP_REGION_OF_INTEREST_FORMAT_KEYPOINT`; `nullptr` if not present
+  MpNormalizedKeypoint* keypoint;
 
   // Represents the ROI in scribble format, this should be not a `nullptr` if
-  // `format` is `kScribble`; `nullptr` if not present
-  NormalizedKeypoint* scribble;
+  // `format` is `MP_REGION_OF_INTEREST_FORMAT_SCRIBBLE`; `nullptr` if not
+  // present
+  MpNormalizedKeypoint* scribble;
 
   // Number of keypoints in scribble; 0 if not present
   uint32_t scribble_count;
@@ -87,7 +91,7 @@ struct RegionOfInterest {
 // failure. It's the caller responsibility to free the error message with
 // `MpErrorFree()`.
 MP_EXPORT MpStatus MpInteractiveSegmenterCreate(
-    struct InteractiveSegmenterOptions* options,
+    struct MpInteractiveSegmenterOptions* options,
     MpInteractiveSegmenterPtr* segmenter, char** error_msg);
 
 // Performs interactive segmentation on the input `image`.
@@ -101,13 +105,14 @@ MP_EXPORT MpStatus MpInteractiveSegmenterCreate(
 // `MpErrorFree()`.
 MP_EXPORT MpStatus MpInteractiveSegmenterSegmentImage(
     MpInteractiveSegmenterPtr segmenter, MpImagePtr image,
-    const RegionOfInterest* roi,
-    const ImageProcessingOptions* image_processing_options,
-    ImageSegmenterResult* result, char** error_msg);
+    const MpRegionOfInterest* roi,
+    const MpImageProcessingOptions* image_processing_options,
+    MpImageSegmenterResult* result, char** error_msg);
 
-// Frees the memory allocated inside a ImageSegmenterResult result.
+// Frees the memory allocated inside a MpImageSegmenterResult result.
 // Does not free the result pointer itself.
-MP_EXPORT void MpInteractiveSegmenterCloseResult(ImageSegmenterResult* result);
+MP_EXPORT void MpInteractiveSegmenterCloseResult(
+    MpImageSegmenterResult* result);
 
 // Frees interactive segmenter.
 // Returns kMpOk on success.

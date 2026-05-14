@@ -26,27 +26,27 @@ namespace mediapipe::tasks::c::core {
 namespace {
 
 mediapipe::tasks::core::BaseOptions::Delegate CppConvertToDelegate(
-    const Delegate& in) {
+    const MpDelegate& in) {
   switch (in) {
-    case CPU:
+    case MP_DELEGATE_CPU:
       return mediapipe::tasks::core::BaseOptions::Delegate::CPU;
-    case GPU:
+    case MP_DELEGATE_GPU:
       return mediapipe::tasks::core::BaseOptions::Delegate::GPU;
-    case EDGETPU_NNAPI:
+    case MP_DELEGATE_EDGETPU_NNAPI:
       return mediapipe::tasks::core::BaseOptions::Delegate::EDGETPU_NNAPI;
   }
 }
 
 mediapipe::tasks::core::HostEnvironment CppConvertToHostEnvironment(
-    const HostEnvironment& in) {
+    const MpHostEnvironment& in) {
   switch (in) {
-    case HOST_ENVIRONMENT_ANDROID:
+    case MP_HOST_ENVIRONMENT_ANDROID:
       return mediapipe::tasks::core::HostEnvironment::HOST_ENVIRONMENT_ANDROID;
-    case HOST_ENVIRONMENT_IOS:
+    case MP_HOST_ENVIRONMENT_IOS:
       return mediapipe::tasks::core::HostEnvironment::HOST_ENVIRONMENT_IOS;
-    case HOST_ENVIRONMENT_PYTHON:
+    case MP_HOST_ENVIRONMENT_PYTHON:
       return mediapipe::tasks::core::HostEnvironment::HOST_ENVIRONMENT_PYTHON;
-    case HOST_ENVIRONMENT_WEB:
+    case MP_HOST_ENVIRONMENT_WEB:
       return mediapipe::tasks::core::HostEnvironment::HOST_ENVIRONMENT_WEB;
     default:
       return mediapipe::tasks::core::HostEnvironment::HOST_ENVIRONMENT_UNKNOWN;
@@ -54,17 +54,17 @@ mediapipe::tasks::core::HostEnvironment CppConvertToHostEnvironment(
 }
 
 mediapipe::tasks::core::HostSystem CppConvertToHostSystem(
-    const HostSystem& in) {
+    const MpHostSystem& in) {
   switch (in) {
-    case HOST_SYSTEM_LINUX:
+    case MP_HOST_SYSTEM_LINUX:
       return mediapipe::tasks::core::HostSystem::HOST_SYSTEM_LINUX;
-    case HOST_SYSTEM_MAC:
+    case MP_HOST_SYSTEM_MAC:
       return mediapipe::tasks::core::HostSystem::HOST_SYSTEM_MAC;
-    case HOST_SYSTEM_WINDOWS:
+    case MP_HOST_SYSTEM_WINDOWS:
       return mediapipe::tasks::core::HostSystem::HOST_SYSTEM_WINDOWS;
-    case HOST_SYSTEM_IOS:
+    case MP_HOST_SYSTEM_IOS:
       return mediapipe::tasks::core::HostSystem::HOST_SYSTEM_IOS;
-    case HOST_SYSTEM_ANDROID:
+    case MP_HOST_SYSTEM_ANDROID:
       return mediapipe::tasks::core::HostSystem::HOST_SYSTEM_ANDROID;
     default:
       return mediapipe::tasks::core::HostSystem::HOST_SYSTEM_UNKNOWN;
@@ -73,7 +73,7 @@ mediapipe::tasks::core::HostSystem CppConvertToHostSystem(
 
 }  // namespace
 
-void CppConvertToBaseOptions(const BaseOptions& in,
+void CppConvertToBaseOptions(const MpBaseOptions& in,
                              mediapipe::tasks::core::BaseOptions* out) {
   out->model_asset_buffer =
       in.model_asset_buffer

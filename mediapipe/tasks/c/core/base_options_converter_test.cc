@@ -28,11 +28,12 @@ constexpr char kAssetBuffer[] = "abc";
 constexpr char kModelAssetPath[] = "abc.tflite";
 
 TEST(BaseOptionsConverterTest, ConvertsBaseOptionsAssetBuffer) {
-  BaseOptions c_base_options = {/* model_asset_buffer= */ kAssetBuffer,
-                                /* model_asset_buffer_count= */
-                                static_cast<unsigned int>(strlen(kAssetBuffer)),
-                                /* model_asset_path= */ nullptr,
-                                /* delegate= */ CPU};
+  MpBaseOptions c_base_options = {
+      /* model_asset_buffer= */ kAssetBuffer,
+      /* model_asset_buffer_count= */
+      static_cast<unsigned int>(strlen(kAssetBuffer)),
+      /* model_asset_path= */ nullptr,
+      /* delegate= */ MP_DELEGATE_CPU};
 
   mediapipe::tasks::core::BaseOptions cpp_base_options = {};
 
@@ -42,10 +43,10 @@ TEST(BaseOptionsConverterTest, ConvertsBaseOptionsAssetBuffer) {
 }
 
 TEST(BaseOptionsConverterTest, ConvertsBaseOptionsAssetPath) {
-  BaseOptions c_base_options = {/* model_asset_buffer= */ nullptr,
-                                /* model_asset_buffer_count= */ 0,
-                                /* model_asset_path= */ kModelAssetPath,
-                                /* delegate= */ CPU};
+  MpBaseOptions c_base_options = {/* model_asset_buffer= */ nullptr,
+                                  /* model_asset_buffer_count= */ 0,
+                                  /* model_asset_path= */ kModelAssetPath,
+                                  /* delegate= */ MP_DELEGATE_CPU};
 
   mediapipe::tasks::core::BaseOptions cpp_base_options = {};
 
@@ -55,10 +56,10 @@ TEST(BaseOptionsConverterTest, ConvertsBaseOptionsAssetPath) {
 }
 
 TEST(BaseOptionsConverterTest, ConvertsBaseOptionsDelegate) {
-  BaseOptions c_base_options = {/* model_asset_buffer= */ nullptr,
-                                /* model_asset_buffer_count= */ 0,
-                                /* model_asset_path= */ kModelAssetPath,
-                                /* delegate= */ GPU};
+  MpBaseOptions c_base_options = {/* model_asset_buffer= */ nullptr,
+                                  /* model_asset_buffer_count= */ 0,
+                                  /* model_asset_path= */ kModelAssetPath,
+                                  /* delegate= */ MP_DELEGATE_GPU};
 
   mediapipe::tasks::core::BaseOptions cpp_base_options = {};
 

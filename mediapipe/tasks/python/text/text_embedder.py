@@ -59,8 +59,8 @@ class TextRole(enum.Enum):
   DOCUMENT = 2
 
 
-class _TextFormatContextC(ctypes.Structure):
-  """C struct for text format context."""
+class _MpTextFormatContextC(ctypes.Structure):
+  """C struct for MpTextFormatContext."""
 
   _fields_ = [
       ('task_type', ctypes.c_int),
@@ -83,17 +83,17 @@ class TextFormatContext:
   title: Optional[str] = None
   role: TextRole = TextRole.QUERY
 
-  def to_ctypes(self) -> _TextFormatContextC:
-    """Generates a ctypes _TextFormatContextC object."""
-    return _TextFormatContextC(
+  def to_ctypes(self) -> _MpTextFormatContextC:
+    """Generates a ctypes _MpTextFormatContextC object."""
+    return _MpTextFormatContextC(
         task_type=self.task_type.value,
         title=self.title.encode('utf-8') if self.title else None,
         role=self.role.value,
     )
 
 
-class _EmbedderOptionsC(ctypes.Structure):
-  """C struct for embedder options."""
+class _MpEmbedderOptionsC(ctypes.Structure):
+  """C struct for MpEmbedderOptions."""
 
   _fields_ = [
       ('l2_normalize', ctypes.c_bool),
@@ -101,12 +101,12 @@ class _EmbedderOptionsC(ctypes.Structure):
   ]
 
 
-class _TextEmbedderOptionsC(ctypes.Structure):
-  """C struct for text embedder options."""
+class _MpTextEmbedderOptionsC(ctypes.Structure):
+  """C struct for MpTextEmbedderOptions."""
 
   _fields_ = [
-      ('base_options', base_options_c_module.BaseOptionsC),
-      ('embedder_options', _EmbedderOptionsC),
+      ('base_options', base_options_c_module.MpBaseOptionsC),
+      ('embedder_options', _MpEmbedderOptionsC),
   ]
 
 
@@ -114,7 +114,7 @@ _CTYPES_SIGNATURES = (
     mediapipe_c_utils.CStatusFunction(
         'MpTextEmbedderCreate',
         [
-            ctypes.POINTER(_TextEmbedderOptionsC),
+            ctypes.POINTER(_MpTextEmbedderOptionsC),
             ctypes.POINTER(ctypes.c_void_p),
         ],
     ),
@@ -123,8 +123,8 @@ _CTYPES_SIGNATURES = (
         [
             ctypes.c_void_p,
             ctypes.c_char_p,
-            ctypes.POINTER(_TextFormatContextC),
-            ctypes.POINTER(embedding_result_c_module.EmbeddingResultC),
+            ctypes.POINTER(_MpTextFormatContextC),
+            ctypes.POINTER(embedding_result_c_module.MpEmbeddingResultC),
         ],
     ),
     mediapipe_c_utils.CStatusFunction(
@@ -135,7 +135,7 @@ _CTYPES_SIGNATURES = (
     ),
     mediapipe_c_utils.CFunction(
         'MpTextEmbedderCloseResult',
-        [ctypes.POINTER(embedding_result_c_module.EmbeddingResultC)],
+        [ctypes.POINTER(embedding_result_c_module.MpEmbeddingResultC)],
         None,
     ),
 )
@@ -160,16 +160,16 @@ class TextEmbedderOptions:
   l2_normalize: Optional[bool] = None
   quantize: Optional[bool] = None
 
-  def to_ctypes(self) -> _TextEmbedderOptionsC:
-    """Generates a ctypes TextEmbedderOptionsC object."""
+  def to_ctypes(self) -> _MpTextEmbedderOptionsC:
+    """Generates a ctypes MpTextEmbedderOptionsC object."""
     base_options_c = self.base_options.to_ctypes()
-    embedder_options_c = _EmbedderOptionsC(
+    embedder_options_c = _MpEmbedderOptionsC(
         l2_normalize=self.l2_normalize
         if self.l2_normalize is not None
         else False,
         quantize=self.quantize if self.quantize is not None else False,
     )
-    return _TextEmbedderOptionsC(
+    return _MpTextEmbedderOptionsC(
         base_options=base_options_c, embedder_options=embedder_options_c
     )
 
@@ -269,7 +269,7 @@ class TextEmbedder:
       ValueError: If any of the input arguments is invalid.
       RuntimeError: If text embedder failed to run.
     """
-    ctypes_result = embedding_result_c_module.EmbeddingResultC()
+    ctypes_result = embedding_result_c_module.MpEmbeddingResultC()
     format_context_c = (
         format_context.to_ctypes() if format_context else None
     )

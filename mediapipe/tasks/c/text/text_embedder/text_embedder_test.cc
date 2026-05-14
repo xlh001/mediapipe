@@ -46,7 +46,7 @@ std::string GetFullPath(absl::string_view file_name) {
 
 TEST(TextEmbedderTest, SmokeTest) {
   std::string model_path = GetFullPath(kTestBertModelPath);
-  TextEmbedderOptions options = {
+  MpTextEmbedderOptions options = {
       .base_options = {.model_asset_path = model_path.c_str()},
       .embedder_options = {.l2_normalize = false, .quantize = true},
   };
@@ -56,7 +56,7 @@ TEST(TextEmbedderTest, SmokeTest) {
             kMpOk);
   EXPECT_NE(embedder, nullptr);
 
-  TextEmbedderResult result;
+  MpTextEmbedderResult result;
   EXPECT_EQ(MpTextEmbedderEmbed(embedder, kTestString0,
                                 /* format_context= */ nullptr, &result,
                                 /* error_msg= */ nullptr),
@@ -71,7 +71,7 @@ TEST(TextEmbedderTest, SmokeTest) {
 
 TEST(TextEmbedderTest, SucceedsWithCosineSimilarity) {
   std::string model_path = GetFullPath(kTestBertModelPath);
-  TextEmbedderOptions options = {
+  MpTextEmbedderOptions options = {
       .base_options = {.model_asset_path = model_path.c_str()},
       .embedder_options = {.l2_normalize = false, .quantize = false}};
 
@@ -81,12 +81,12 @@ TEST(TextEmbedderTest, SucceedsWithCosineSimilarity) {
   EXPECT_NE(embedder, nullptr);
 
   // Extract both embeddings.
-  TextEmbedderResult result0;
+  MpTextEmbedderResult result0;
   EXPECT_EQ(MpTextEmbedderEmbed(embedder, kTestString0,
                                 /* format_context= */ nullptr, &result0,
                                 /* error_msg= */ nullptr),
             kMpOk);
-  TextEmbedderResult result1;
+  MpTextEmbedderResult result1;
   EXPECT_EQ(MpTextEmbedderEmbed(embedder, kTestString1,
                                 /* format_context= */ nullptr, &result1,
                                 /* error_msg= */ nullptr),
@@ -112,7 +112,7 @@ TEST(TextEmbedderTest, SucceedsWithCosineSimilarity) {
 
 TEST(TextEmbedderTest, ErrorHandling) {
   // It is an error to set neither the asset buffer nor the path.
-  TextEmbedderOptions options = {
+  MpTextEmbedderOptions options = {
       .base_options = {.model_asset_path = nullptr},
       .embedder_options = {},
   };
@@ -129,7 +129,7 @@ TEST(TextEmbedderTest, ErrorHandling) {
 
 TEST(TextEmbedderTest, SucceedsWithGecko) {
   std::string model_path = GetFullPath(kTestGeckoModelPath);
-  TextEmbedderOptions options = {
+  MpTextEmbedderOptions options = {
       .base_options = {.model_asset_path = model_path.c_str()},
       .embedder_options = {},
   };
@@ -145,7 +145,7 @@ TEST(TextEmbedderTest, SucceedsWithGecko) {
       .role = MP_TEXT_EMBEDDER_ROLE_QUERY,
   };
 
-  TextEmbedderResult result;
+  MpTextEmbedderResult result;
   ASSERT_EQ(MpTextEmbedderEmbed(embedder, kTestString0, &context, &result,
                                 /* error_msg= */ nullptr),
             kMpOk);

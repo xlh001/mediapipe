@@ -34,7 +34,7 @@ extern "C" {
 #endif
 
 typedef struct MpTextEmbedderInternal* MpTextEmbedderPtr;
-typedef struct EmbeddingResult TextEmbedderResult;
+typedef struct MpEmbeddingResult MpTextEmbedderResult;
 
 // The embedding type, used to format input text.
 enum MpTextEmbedderEmbeddingType {
@@ -75,14 +75,14 @@ struct MpTextEmbedderFormatContext {
 };
 
 // The options for configuring a MediaPipe text embedder task.
-struct TextEmbedderOptions {
+struct MpTextEmbedderOptions {
   // Base options for configuring MediaPipe Tasks, such as specifying the model
   // file with metadata, accelerator options, op resolver, etc.
-  struct BaseOptions base_options;
+  struct MpBaseOptions base_options;
 
   // Options for configuring the embedder behavior, such as l2_normalize
   // and quantize.
-  struct EmbedderOptions embedder_options;
+  struct MpEmbedderOptions embedder_options;
 };
 
 // Creates a TextEmbedder from the provided `options`.
@@ -93,13 +93,13 @@ struct TextEmbedderOptions {
 // `char*`, which will be populated with a newly-allocated error message upon
 // failure. It's the caller responsibility to free the error message with
 // `MpErrorFree()`.
-MP_EXPORT MpStatus MpTextEmbedderCreate(struct TextEmbedderOptions* options,
+MP_EXPORT MpStatus MpTextEmbedderCreate(struct MpTextEmbedderOptions* options,
                                         MpTextEmbedderPtr* embedder,
                                         char** error_msg);
 
 // Performs embedding extraction on the input `utf8_str`.
 // If successful, returns `kMpOk` and sets `*result` to the new
-// `TextEmbedderResult`.
+// `MpTextEmbedderResult`.
 //
 // The optional `format_context` can be used to specify formatting options for
 // models that require them, such as the Gecko family of models. If
@@ -113,11 +113,11 @@ MP_EXPORT MpStatus MpTextEmbedderCreate(struct TextEmbedderOptions* options,
 MP_EXPORT MpStatus
 MpTextEmbedderEmbed(MpTextEmbedderPtr embedder, const char* utf8_str,
                     const struct MpTextEmbedderFormatContext* format_context,
-                    TextEmbedderResult* result, char** error_msg);
+                    MpTextEmbedderResult* result, char** error_msg);
 
-// Frees the memory allocated inside a TextEmbedderResult result. Does not
+// Frees the memory allocated inside a MpTextEmbedderResult result. Does not
 // free the result pointer itself.
-MP_EXPORT void MpTextEmbedderCloseResult(TextEmbedderResult* result);
+MP_EXPORT void MpTextEmbedderCloseResult(MpTextEmbedderResult* result);
 
 // Shuts down the TextEmbedder when all the work is done. Frees all memory.
 //
@@ -139,8 +139,8 @@ MP_EXPORT MpStatus MpTextEmbedderClose(MpTextEmbedderPtr embedder,
 // `MpErrorFree()`.
 //
 // [1]: https://en.wikipedia.org/wiki/Cosine_similarity
-MP_EXPORT MpStatus MpTextEmbedderCosSimilarity(const struct Embedding* u,
-                                               const struct Embedding* v,
+MP_EXPORT MpStatus MpTextEmbedderCosSimilarity(const struct MpEmbedding* u,
+                                               const struct MpEmbedding* v,
                                                double* similarity,
                                                char** error_msg);
 

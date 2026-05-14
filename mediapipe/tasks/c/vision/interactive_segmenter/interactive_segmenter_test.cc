@@ -65,7 +65,7 @@ TEST(InteractiveSegmenterTest,
   ASSERT_NE(image, nullptr);
 
   const std::string model_path = GetFullPath(kModelName);
-  InteractiveSegmenterOptions options = {
+  MpInteractiveSegmenterOptions options = {
       .base_options = {.model_asset_buffer = nullptr,
                        .model_asset_buffer_count = 0,
                        .model_asset_path = model_path.c_str()},
@@ -78,16 +78,16 @@ TEST(InteractiveSegmenterTest,
                                          /* error_msg= */ nullptr),
             kMpOk);
 
-  ImageSegmenterResult result;
+  MpImageSegmenterResult result;
 
   // Initialize the keypoint
-  NormalizedKeypoint keypoint = {.x = 0.329f, .y = 0.545f};
+  MpNormalizedKeypoint keypoint = {.x = 0.329f, .y = 0.545f};
 
   // Initialize the ROI using brace initialization
-  RegionOfInterest roi = {.format = RegionOfInterest::kKeypoint,
-                          .keypoint = &keypoint,
-                          .scribble = nullptr,
-                          .scribble_count = 0};
+  MpRegionOfInterest roi = {.format = MP_REGION_OF_INTEREST_FORMAT_KEYPOINT,
+                            .keypoint = &keypoint,
+                            .scribble = nullptr,
+                            .scribble_count = 0};
 
   ASSERT_EQ(MpInteractiveSegmenterSegmentImage(
                 segmenter, image.get(), &roi,
@@ -115,7 +115,7 @@ TEST(InteractiveSegmenterTest,
   ASSERT_NE(image, nullptr);
 
   const std::string model_path = GetFullPath(kModelName);
-  InteractiveSegmenterOptions options = {
+  MpInteractiveSegmenterOptions options = {
       .base_options = {.model_asset_buffer = nullptr,
                        .model_asset_buffer_count = 0,
                        .model_asset_path = model_path.c_str()},
@@ -128,17 +128,17 @@ TEST(InteractiveSegmenterTest,
                                          /* error_msg= */ nullptr),
             kMpOk);
 
-  ImageSegmenterResult result;
+  MpImageSegmenterResult result;
 
-  NormalizedKeypoint keypoints[3] = {{.x = 0.44f, .y = 0.70f},
-                                     {.x = 0.44f, .y = 0.71f},
-                                     {.x = 0.44f, .y = 0.72f}};
+  MpNormalizedKeypoint keypoints[3] = {{.x = 0.44f, .y = 0.70f},
+                                       {.x = 0.44f, .y = 0.71f},
+                                       {.x = 0.44f, .y = 0.72f}};
 
   // Initialize RegionOfInterestC
-  RegionOfInterest roi = {.format = RegionOfInterest::kScribble,
-                          .keypoint = nullptr,
-                          .scribble = keypoints,
-                          .scribble_count = 3};
+  MpRegionOfInterest roi = {.format = MP_REGION_OF_INTEREST_FORMAT_SCRIBBLE,
+                            .keypoint = nullptr,
+                            .scribble = keypoints,
+                            .scribble_count = 3};
 
   ASSERT_EQ(MpInteractiveSegmenterSegmentImage(
                 segmenter, image.get(), &roi,
@@ -164,7 +164,7 @@ TEST(InteractiveSegmenterTest, ImageModeTestWithRotation) {
   ASSERT_NE(image, nullptr);
 
   const std::string model_path = GetFullPath(kModelName);
-  InteractiveSegmenterOptions options = {
+  MpInteractiveSegmenterOptions options = {
       .base_options = {.model_asset_buffer = nullptr,
                        .model_asset_buffer_count = 0,
                        .model_asset_path = model_path.c_str()},
@@ -177,18 +177,18 @@ TEST(InteractiveSegmenterTest, ImageModeTestWithRotation) {
                                          /* error_msg= */ nullptr),
             kMpOk);
 
-  ImageSegmenterResult result;
+  MpImageSegmenterResult result;
 
   // Initialize the keypoint
-  NormalizedKeypoint keypoint = {.x = 0.329f, .y = 0.545f};
+  MpNormalizedKeypoint keypoint = {.x = 0.329f, .y = 0.545f};
 
   // Initialize the ROI using brace initialization
-  RegionOfInterest roi = {.format = RegionOfInterest::kKeypoint,
-                          .keypoint = &keypoint,
-                          .scribble = nullptr,
-                          .scribble_count = 0};
+  MpRegionOfInterest roi = {.format = MP_REGION_OF_INTEREST_FORMAT_KEYPOINT,
+                            .keypoint = &keypoint,
+                            .scribble = nullptr,
+                            .scribble_count = 0};
 
-  ImageProcessingOptions image_processing_options = {
+  MpImageProcessingOptions image_processing_options = {
       .has_region_of_interest = false, .rotation_degrees = -90};
 
   ASSERT_EQ(MpInteractiveSegmenterSegmentImage(
@@ -211,7 +211,7 @@ TEST(InteractiveSegmenterTest, ImageModeTestWithRotation) {
 
 TEST(InteractiveSegmenterTest, InvalidArgumentHandling) {
   // It is an error to set neither the asset buffer nor the path.
-  InteractiveSegmenterOptions options = {
+  MpInteractiveSegmenterOptions options = {
       .base_options = {.model_asset_buffer = nullptr,
                        .model_asset_buffer_count = 0,
                        .model_asset_path = nullptr},
@@ -233,7 +233,7 @@ TEST(InteractiveSegmenterTest, InvalidArgumentHandling) {
 
 TEST(InteractiveSegmenterTest, FailedRecognitionHandling) {
   const std::string model_path = GetFullPath(kModelName);
-  InteractiveSegmenterOptions options = {
+  MpInteractiveSegmenterOptions options = {
       .base_options = {.model_asset_buffer = nullptr,
                        .model_asset_buffer_count = 0,
                        .model_asset_path = model_path.c_str()},
@@ -247,14 +247,14 @@ TEST(InteractiveSegmenterTest, FailedRecognitionHandling) {
             kMpOk);
 
   const ScopedMpImage mp_image = CreateEmptyGpuMpImage();
-  ImageSegmenterResult result;
+  MpImageSegmenterResult result;
 
-  NormalizedKeypoint keypoint = {.x = 0.0f, .y = 0.0f};
+  MpNormalizedKeypoint keypoint = {.x = 0.0f, .y = 0.0f};
 
-  RegionOfInterest roi = {.format = RegionOfInterest::kKeypoint,
-                          .keypoint = &keypoint,
-                          .scribble = nullptr,
-                          .scribble_count = 0};
+  MpRegionOfInterest roi = {.format = MP_REGION_OF_INTEREST_FORMAT_KEYPOINT,
+                            .keypoint = &keypoint,
+                            .scribble = nullptr,
+                            .scribble_count = 0};
 
   char* error_msg = nullptr;
   MpStatus status = MpInteractiveSegmenterSegmentImage(

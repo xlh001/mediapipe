@@ -111,7 +111,7 @@ absl::StatusOr<TextFormatContext> CppConvertToTextFormatContext(
 
 }  // namespace
 
-absl::Status CppTextEmbedderCreate(const TextEmbedderOptions& options,
+absl::Status CppTextEmbedderCreate(const MpTextEmbedderOptions& options,
                                    MpTextEmbedderPtr* embedder) {
   auto cpp_options = std::make_unique<
       ::mediapipe::tasks::text::text_embedder::TextEmbedderOptions>();
@@ -131,7 +131,7 @@ absl::Status CppTextEmbedderCreate(const TextEmbedderOptions& options,
 absl::Status CppTextEmbedderEmbed(
     MpTextEmbedderPtr embedder, const char* utf8_str,
     const struct MpTextEmbedderFormatContext* format_context,
-    TextEmbedderResult* result) {
+    MpTextEmbedderResult* result) {
   auto cpp_embedder = GetCppEmbedder(embedder);
   EmbeddingResult cpp_result;
   if (format_context) {
@@ -147,7 +147,7 @@ absl::Status CppTextEmbedderEmbed(
   return absl::OkStatus();
 }
 
-void CppTextEmbedderCloseResult(TextEmbedderResult* result) {
+void CppTextEmbedderCloseResult(MpTextEmbedderResult* result) {
   CppCloseEmbeddingResult(result);
 }
 
@@ -161,8 +161,8 @@ absl::Status CppTextEmbedderClose(MpTextEmbedderPtr embedder) {
   return absl::OkStatus();
 }
 
-absl::Status CppTextEmbedderCosSimilarity(const Embedding* u,
-                                          const Embedding* v,
+absl::Status CppTextEmbedderCosSimilarity(const MpEmbedding* u,
+                                          const MpEmbedding* v,
                                           double* similarity) {
   CppEmbedding cpp_u;
   CppConvertToCppEmbedding(*u, &cpp_u);
@@ -179,7 +179,7 @@ absl::Status CppTextEmbedderCosSimilarity(const Embedding* u,
 
 extern "C" {
 
-MP_EXPORT MpStatus MpTextEmbedderCreate(struct TextEmbedderOptions* options,
+MP_EXPORT MpStatus MpTextEmbedderCreate(struct MpTextEmbedderOptions* options,
                                         MpTextEmbedderPtr* embedder,
                                         char** error_msg) {
   absl::Status status =
@@ -191,14 +191,14 @@ MP_EXPORT MpStatus MpTextEmbedderCreate(struct TextEmbedderOptions* options,
 MP_EXPORT MpStatus
 MpTextEmbedderEmbed(MpTextEmbedderPtr embedder, const char* utf8_str,
                     const struct MpTextEmbedderFormatContext* format_context,
-                    TextEmbedderResult* result, char** error_msg) {
+                    MpTextEmbedderResult* result, char** error_msg) {
   absl::Status status =
       mediapipe::tasks::c::text::text_embedder::CppTextEmbedderEmbed(
           embedder, utf8_str, format_context, result);
   return mediapipe::tasks::c::core::HandleStatus(status, error_msg);
 }
 
-MP_EXPORT void MpTextEmbedderCloseResult(TextEmbedderResult* result) {
+MP_EXPORT void MpTextEmbedderCloseResult(MpTextEmbedderResult* result) {
   mediapipe::tasks::c::text::text_embedder::CppTextEmbedderCloseResult(result);
 }
 
@@ -209,8 +209,8 @@ MP_EXPORT MpStatus MpTextEmbedderClose(MpTextEmbedderPtr embedder,
   return mediapipe::tasks::c::core::HandleStatus(status, error_msg);
 }
 
-MP_EXPORT MpStatus MpTextEmbedderCosSimilarity(const Embedding* u,
-                                               const Embedding* v,
+MP_EXPORT MpStatus MpTextEmbedderCosSimilarity(const MpEmbedding* u,
+                                               const MpEmbedding* v,
                                                double* similarity,
                                                char** error_msg) {
   absl::Status status =
