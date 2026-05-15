@@ -21,6 +21,12 @@ package(default_visibility = ["//visibility:public"])
 licenses(["notice"])
 
 cc_library(
+    name = "tasks_logging_factory",
+    visibility = ["//mediapipe/tasks:__subpackages__"],
+    deps = ["//mediapipe/tasks/cc/core/logging/factory:logging_factory"],
+)
+
+cc_library(
     name = "base_options",
     srcs = ["base_options.cc"],
     hdrs = ["base_options.h"],
@@ -273,6 +279,7 @@ cc_library_with_tflite(
     deps = [
         ":host_environment",
         ":running_mode",
+        ":tasks_logging_factory",
         "//mediapipe/framework:calculator_cc_proto",
         "//mediapipe/framework:calculator_framework",
         "//mediapipe/framework:executor",
@@ -282,7 +289,6 @@ cc_library_with_tflite(
         "//mediapipe/tasks/cc:common",
         "//mediapipe/tasks/cc/core/logging:tasks_dummy_logger",
         "//mediapipe/tasks/cc/core/logging:tasks_logger",
-        "//mediapipe/tasks/cc/core/logging/factory:logging_factory",
         "//mediapipe/tasks/cc/core/logging/factory:logging_factory_hdr",
         "@com_google_absl//absl/base:core_headers",
         "@com_google_absl//absl/container:flat_hash_map",
