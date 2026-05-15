@@ -141,6 +141,7 @@ describe('TaskRunner', () => {
         usage:
           InferenceCalculatorOptions.Delegate.Gpu.InferenceUsage
             .SUSTAINED_SPEED,
+        webnn: undefined,
       },
       tflite: undefined,
       nnapi: undefined,
