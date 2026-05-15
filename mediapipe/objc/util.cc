@@ -16,6 +16,7 @@
 
 #import <CoreGraphics/CGImage.h>
 
+#include <cstddef>
 #include <cstdint>
 
 #include "absl/base/macros.h"
@@ -89,6 +90,8 @@ CGColorSpaceRef CreateConversionCGColorSpaceForPixelFormat(
     case kCVPixelFormatType_422YpCbCr_4A_8BiPlanar:
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
     case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange:
+    case kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange:
+    case kCVPixelFormatType_420YpCbCr10BiPlanarFullRange:
     case kCVPixelFormatType_422YpCbCr8_yuvs:
     case kCVPixelFormatType_422YpCbCr8FullRange:
       return CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
