@@ -14,8 +14,6 @@
 
 # Placeholder for internal Python strict contrib test macro and library compatibility macro.
 
-package(default_visibility = ["//mediapipe/tasks:internal"])
-
 licenses(["notice"])
 
 py_library(
