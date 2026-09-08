@@ -15,16 +15,20 @@
 // This Calculator takes an ImageFrame and scales it appropriately.
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "absl/log/absl_check.h"
 #include "absl/log/absl_log.h"
 #include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/substitute.h"
+#include "absl/types/span.h"
 #include "libyuv/scale.h"
+#include "libyuv/video_common.h"
 #include "mediapipe/calculators/image/scale_image_calculator.pb.h"
 #include "mediapipe/calculators/image/scale_image_utils.h"
 #include "mediapipe/framework/calculator_framework.h"
@@ -606,21 +610,26 @@ absl::Status ScaleImageCalculator::Process(CalculatorContext* cc) {
       // Scale the YUVImage and output without converting the color space.
       const int y_size = output_width_ * output_height_;
       const int uv_size = output_width_ * output_height_ / 4;
-      std::unique_ptr<uint8_t[]> yuv_data(new uint8_t[y_size + uv_size * 2]);
-      uint8_t* y = yuv_data.get();
-      uint8_t* u = y + y_size;
-      uint8_t* v = u + uv_size;
-      RET_CHECK_EQ(0, I420Scale(yuv_image->data(0), yuv_image->stride(0),
-                                yuv_image->data(1), yuv_image->stride(1),
-                                yuv_image->data(2), yuv_image->stride(2),
-                                yuv_image->width(), yuv_image->height(), y,
-                                output_width_, u, output_width_ / 2, v,
-                                output_width_ / 2, output_width_,
-                                output_height_, libyuv::kFilterBox));
-      auto output_image = std::make_unique<YUVImage>(
-          libyuv::FOURCC_I420, std::move(yuv_data), y, output_width_, u,
-          output_width_ / 2, v, output_width_ / 2, output_width_,
-          output_height_);
+      const size_t total_size = y_size + uv_size * 2;
+      std::unique_ptr<uint8_t[]> yuv_data(new uint8_t[total_size]);
+      absl::Span<uint8_t> yuv_span(yuv_data.get(), total_size);
+      absl::Span<uint8_t> y = yuv_span.subspan(0, y_size);
+      absl::Span<uint8_t> u = yuv_span.subspan(y_size, uv_size);
+      absl::Span<uint8_t> v = yuv_span.subspan(y_size + uv_size, uv_size);
+      RET_CHECK_EQ(
+          0, I420Scale(yuv_image->data(0), yuv_image->stride(0),
+                       yuv_image->data(1), yuv_image->stride(1),
+                       yuv_image->data(2), yuv_image->stride(2),
+                       yuv_image->width(), yuv_image->height(), y.data(),
+                       output_width_, u.data(), output_width_ / 2, v.data(),
+                       output_width_ / 2, output_width_, output_height_,
+                       libyuv::kFilterBox));
+      auto output_image = std::make_unique<YUVImage>();
+      output_image->Initialize(
+          libyuv::FOURCC_I420,
+          [data = std::move(yuv_data)]() mutable { data.reset(); }, y,
+          output_width_, u, output_width_ / 2, v, output_width_ / 2,
+          output_width_, output_height_);
       cc->GetCounter("Outputs Scaled")->Increment();
       if (yuv_image->width() >= output_width_ &&
           yuv_image->height() >= output_height_) {
