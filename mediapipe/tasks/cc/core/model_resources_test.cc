@@ -221,7 +221,7 @@ TEST_F(ModelResourcesTest, CreateSuccessWithCustomOpsFromFile) {
       auto model_resources,
       ModelResources::Create(
           kTestModelResourcesTag, std::move(model_file),
-          absl::make_unique<tflite::MutableOpResolver>(resolver)));
+          std::make_unique<tflite::MutableOpResolver>(resolver)));
 
   EXPECT_EQ(kTestModelResourcesTag, model_resources->GetTag());
   CheckModelResourcesPackets(model_resources.get());
@@ -282,7 +282,7 @@ TEST_F(ModelResourcesTest, CreateSuccessWithCustomOpsPacket) {
   auto model_file = std::make_unique<proto::ExternalFile>();
   model_file->set_file_name(kTestModelWithCustomOpsPath);
   auto external_op_resolver_packet = api2::PacketAdopting<tflite::OpResolver>(
-      absl::make_unique<tflite::MutableOpResolver>(resolver));
+      std::make_unique<tflite::MutableOpResolver>(resolver));
   MP_ASSERT_OK_AND_ASSIGN(
       auto model_resources,
       ModelResources::Create(kTestModelResourcesTag, std::move(model_file),
