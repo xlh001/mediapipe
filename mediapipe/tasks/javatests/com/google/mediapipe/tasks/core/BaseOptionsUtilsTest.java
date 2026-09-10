@@ -95,6 +95,36 @@ public class BaseOptionsUtilsTest {
   }
 
   @Test
+  public void succeedsWithNpuDelegateWithoutDelegateOptions() throws Exception {
+    BaseOptions options =
+        BaseOptions.builder()
+            .setModelAssetPath(MODEL_ASSET_PATH)
+            .setDelegate(Delegate.NPU)
+            .build();
+    BaseOptionsProto.BaseOptions baseOptionsProto =
+        BaseOptionsUtils.convertBaseOptionsToProto(options);
+    AccelerationProto.Acceleration acceleration = baseOptionsProto.getAcceleration();
+    assertThat(acceleration.hasLitert()).isTrue();
+    assertThat(acceleration.getLitert().hasNpu()).isTrue();
+  }
+
+  @Test
+  public void succeedsWithNpuOptionsDefaultDirectories() throws Exception {
+    BaseOptions options =
+        BaseOptions.builder()
+            .setModelAssetPath(MODEL_ASSET_PATH)
+            .setDelegate(Delegate.NPU)
+            .setDelegateOptions(BaseOptions.DelegateOptions.NpuOptions.builder().build())
+            .build();
+    BaseOptionsProto.BaseOptions baseOptionsProto =
+        BaseOptionsUtils.convertBaseOptionsToProto(options);
+    AccelerationProto.Acceleration acceleration = baseOptionsProto.getAcceleration();
+    assertThat(acceleration.hasLitert()).isTrue();
+    assertThat(acceleration.getLitert().hasNpu()).isTrue();
+    assertThat(acceleration.getLitert().getNpu().getDispatchLibraryPath()).isEmpty();
+  }
+
+  @Test
   public void succeedsWithLiteRtOptions() throws Exception {
     BaseOptions options =
         BaseOptions.builder()

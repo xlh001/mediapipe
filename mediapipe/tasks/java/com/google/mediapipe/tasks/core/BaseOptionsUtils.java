@@ -126,8 +126,11 @@ public final class BaseOptionsUtils {
         break;
       case NPU:
         accelerationBuilder.setLitert(
-            InferenceCalculatorProto.InferenceCalculatorOptions.Delegate.LiteRt
-                .getDefaultInstance());
+            InferenceCalculatorProto.InferenceCalculatorOptions.Delegate.LiteRt.newBuilder()
+                .setNpu(
+                    InferenceCalculatorProto.InferenceCalculatorOptions.Delegate.LiteRt.Npu
+                        .getDefaultInstance())
+                .build());
         options
             .delegateOptions()
             .ifPresent(

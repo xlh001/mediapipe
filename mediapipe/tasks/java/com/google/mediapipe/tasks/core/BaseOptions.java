@@ -189,7 +189,9 @@ public abstract class BaseOptions {
       abstract String compilerPluginLibraryDirectory();
 
       public static Builder builder() {
-        return new AutoValue_BaseOptions_DelegateOptions_NpuOptions.Builder();
+        return new AutoValue_BaseOptions_DelegateOptions_NpuOptions.Builder()
+            .setDispatchLibraryDirectory("")
+            .setCompilerPluginLibraryDirectory("");
       }
 
       /** Builder for {@link NpuOptions}. */
