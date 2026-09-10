@@ -1012,6 +1012,7 @@ cc_library(
         "//mediapipe/framework/formats:landmark_cc_proto",
         "//mediapipe/framework/formats:rect_cc_proto",
         "//mediapipe/framework/port:ret_check",
+        "@com_google_absl//absl/status:status_macros",
     ],
     alwayslink = 1,
 )

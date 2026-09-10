@@ -15,7 +15,10 @@
 #include "mediapipe/calculators/util/landmarks_smoothing_calculator.h"
 
 #include <memory>
+#include <optional>
+#include <utility>
 
+#include "absl/status/status_macros.h"
 #include "mediapipe/calculators/util/landmarks_smoothing_calculator.pb.h"
 #include "mediapipe/calculators/util/landmarks_smoothing_calculator_utils.h"
 #include "mediapipe/framework/api2/node.h"
@@ -66,9 +69,15 @@ class LandmarksSmoothingCalculatorImpl
     if (kInNormLandmarks(cc).IsConnected()) {
       const auto& in_norm_landmarks = kInNormLandmarks(cc).Get();
 
-      int image_width;
-      int image_height;
-      std::tie(image_width, image_height) = kImageSize(cc).Get();
+      const auto& image_size = kImageSize(cc).Get();
+      const auto& [image_width, image_height] = image_size;
+
+      // Reset the smoothing filter if the input image size changed between
+      // frames.
+      if (prev_image_size_.has_value() && image_size != *prev_image_size_) {
+        ABSL_RETURN_IF_ERROR(landmarks_filter_->Reset());
+      }
+      prev_image_size_ = image_size;
 
       std::optional<float> object_scale;
       if (kObjectScaleRoi(cc).IsConnected() && !kObjectScaleRoi(cc).IsEmpty()) {
@@ -110,6 +119,7 @@ class LandmarksSmoothingCalculatorImpl
 
  private:
   std::unique_ptr<LandmarksFilter> landmarks_filter_;
+  std::optional<std::pair<int, int>> prev_image_size_;
 };
 MEDIAPIPE_NODE_IMPLEMENTATION(LandmarksSmoothingCalculatorImpl);
 
