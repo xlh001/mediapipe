@@ -168,7 +168,7 @@ void GraphProfiler::Initialize(
   int64_t num_intervals = profiler_config_.num_histogram_intervals();
   num_intervals = num_intervals ? num_intervals : 1;
   if (IsTracerEnabled(profiler_config_)) {
-    packet_tracer_ = absl::make_unique<GraphTracer>(profiler_config_);
+    packet_tracer_ = std::make_unique<GraphTracer>(profiler_config_);
   }
   for (int node_id = 0;
        node_id < validated_graph_config.CalculatorInfos().size(); ++node_id) {
@@ -592,7 +592,7 @@ std::unique_ptr<GlProfilingHelper> GraphProfiler::CreateGlProfilingHelper() {
   if (!IsTracerEnabled(profiler_config_)) {
     return nullptr;
   }
-  return absl::make_unique<mediapipe::GlProfilingHelper>(shared_from_this());
+  return std::make_unique<mediapipe::GlProfilingHelper>(shared_from_this());
 }
 
 // A simple ZeroCopyOutputStream that writes to a std::ostream.
